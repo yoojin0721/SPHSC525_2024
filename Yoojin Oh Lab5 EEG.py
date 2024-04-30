@@ -65,47 +65,71 @@ events_participant2, _ = mne.events_from_annotations(raw_participant2)
 events_participant3, _ = mne.events_from_annotations(raw_participant3)
 
 # Define event IDs and event codes for the events of interest
-event_id1 = {'203': 1, '207': 2}  # Replace with your event IDs and codes
-event_id2 = {'203': 1, '207': 2}  # Replace with your event IDs and codes
-event_id3 = {'203': 1, '207': 2}  # Replace with your event IDs and codes
+event_id1 = {'203': 1}
+event_id2 = {'207': 2}  # Replace with your event IDs and codes
 
 # Define epochs parameters
 tmin = -0.2  # Start time of the epoch relative to event onset (in seconds)
-tmax = 0.5   # End time of the epoch relative to event onset (in seconds)
+tmax = 1.0   # End time of the epoch relative to event onset (in seconds)
 
 # Extract epochs for participant 1
 epochs_participant1 = mne.Epochs(raw_participant1, events=events_participant1, event_id=event_id1, tmin=tmin, tmax=tmax)
+epochs_participant1_2 = mne.Epochs(raw_participant1, events=events_participant1, event_id=event_id2, tmin=tmin, tmax=tmax)
 
 # Extract epochs for participant 2
-epochs_participant2 = mne.Epochs(raw_participant2, events=events_participant2, event_id=event_id2, tmin=tmin, tmax=tmax)
+epochs_participant2 = mne.Epochs(raw_participant2, events=events_participant2, event_id=event_id1, tmin=tmin, tmax=tmax)
+epochs_participant2_2 = mne.Epochs(raw_participant2, events=events_participant2, event_id=event_id2, tmin=tmin, tmax=tmax)
 
-epochs_participant3 = mne.Epochs(raw_participant3, events=events_participant3, event_id=event_id2, tmin=tmin, tmax=tmax)
+epochs_participant3 = mne.Epochs(raw_participant3, events=events_participant3, event_id=event_id1, tmin=tmin, tmax=tmax)
+epochs_participant3_2 = mne.Epochs(raw_participant3, events=events_participant3, event_id=event_id2, tmin=tmin, tmax=tmax)
 
-# Compute average ERPs for both participants
-avg_erp_participant1 = epochs_participant1.average()
-avg_erp_participant2 = epochs_participant2.average()
-avg_erp_participant3 = epochs_participant3.average()
+# Compute average ERPs for all participants, event 1 ('203')
+avg_erp_participant1_event1 = epochs_participant1.average()
+avg_erp_participant2_event1 = epochs_participant2.average()
+avg_erp_participant3_event1 = epochs_participant3.average()
 
-# Plot the ERPs for Event 207
+# Compute average ERPs for all participants, event 2 ('207')
+avg_erp_participant1_event2 = epochs_participant1_2.average()
+avg_erp_participant2_event2 = epochs_participant2_2.average()
+avg_erp_participant3_event2 = epochs_participant3_2.average()
+
+
+
+#set y-axis min max
+max_val_203 = 8
+max_val_207 = 8
+min_val_203 = -6
+min_val_207 = -6
+
+grand_avg_erp_event1 = mne.grand_average([avg_erp_participant1_event1, avg_erp_participant2_event1, avg_erp_participant3_event1])
+grand_avg_erp_event2 = mne.grand_average([avg_erp_participant1_event2, avg_erp_participant2_event2, avg_erp_participant3_event2])
+
+# Plot the grand average ERP for event type '203'
 plt.figure(figsize=(10, 6))
-plt.plot(avg_erp_participant1.times, avg_erp_participant1.data[event_id1['207']], label='Participant 1', color='blue')
-plt.plot(avg_erp_participant2.times, avg_erp_participant2.data[event_id1['207']], label='Participant 2', color='orange')
-plt.plot(avg_erp_participant3.times, avg_erp_participant3.data[event_id1['207']], label='Participant 3', color='pink')
+plt.plot(grand_avg_erp_event1.times, grand_avg_erp_event1.data[0], label='Grand Average', color='blue')
 plt.xlabel('Time (s)')
 plt.ylabel('Amplitude (uV)')
-plt.title('Average ERPs - Event 207')
+plt.title('Grand Average ERPs - Event 203')
 plt.legend()
 plt.grid(True)
 plt.show()
 
-# Plot the ERPs for Event 203
+# Plot the grand average ERP for event type '207'
 plt.figure(figsize=(10, 6))
-plt.plot(avg_erp_participant1.times, avg_erp_participant1.data[event_id2['203']], label='Participant 1', color='green')
-plt.plot(avg_erp_participant2.times, avg_erp_participant2.data[event_id2['203']], label='Participant 2', color='red')
-plt.plot(avg_erp_participant3.times, avg_erp_participant3.data[event_id2['203']], label='Participant 2', color='yellow')
+plt.plot(grand_avg_erp_event2.times, grand_avg_erp_event2.data[0], label='Grand Average', color='blue')
 plt.xlabel('Time (s)')
 plt.ylabel('Amplitude (uV)')
-plt.title('Average ERPs - Event 203')
+plt.title('Grand Average ERPs - Event 207')
+plt.legend()
+plt.grid(True)
+plt.show()
+
+plt.figure(figsize=(10, 6))
+plt.plot(grand_avg_erp_event1.times, grand_avg_erp_event1.data[0], label='Event 203', color='blue')
+plt.plot(grand_avg_erp_event2.times, grand_avg_erp_event2.data[0], label='Event 207', color='orange')
+plt.xlabel('Time (s)')
+plt.ylabel('Amplitude (uV)')
+plt.title('Grand Average ERPs')
 plt.legend()
 plt.grid(True)
 plt.show()
